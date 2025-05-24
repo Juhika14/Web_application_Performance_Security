@@ -1,0 +1,31 @@
+Creating two ec2 instance.
+// enable http , ssh trafffic(port 22, 80 inbound and outbound rules)
+
+Instance configuration
+AMI-Amazon Linux AMI
+Type: t2.micro
+Region: us-east-1
+
+Advanced Data:
+
+!#bin/bash
+yum update -y
+yum install apache2 -y
+systemctl start apache2
+systemctl enable apache2
+echo "Hi this the application in US_EAST_1 region" > /var/www/html/index.html
+
+Similarly deploy an instance in the Oregon Region
+
+Instance configuration
+AMI-Amazon Linux AMI
+Type: t2.micro
+Region: us-east-1
+
+
+!#bin/bash
+yum update -y
+yum install apache2 -y
+systemctl start apache2
+systemctl enable apache2
+echo "Hi this the application in US-EAST_2 region" > /var/www/html/index.html
