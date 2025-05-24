@@ -1,0 +1,88 @@
+
+Step 2: Create a REST API in API Gateway
+Go to API Gateway → Create API
+
+Choose HTTP API
+
+Integration type: HTTP
+
+URL: Public IP or DNS of your EC2 instance (e.g., http://ec2-xx-xx-xx-xx.compute.amazonaws.com)
+
+Route: / → Method: ANY
+
+Deployment stage: prod
+
+curl https://<api-id>.execute-api.us-east-1.amazonaws.com/prod/
+✅ Part 2: Configure AWS Global Accelerator for Global Performance
+
+Step 3: Create a Web Server Behind ALB (Oregon)
+Launch an EC2 instance in us-west-2 (Oregon) with same Apache setup as above.
+
+Create a Target Group for the instance (protocol: HTTP, port 80).
+
+Create an Application Load Balancer (ALB):
+
+Attach it to the target group.
+
+Listener: HTTP on port 80 → forward to target group.
+
+Add security group rules to allow HTTP traffic.
+
+Step 4: Configure Global Accelerator
+Go to Global Accelerator → Create Accelerator
+
+Name: WebAppAccelerator
+
+Add two endpoints:
+
+Endpoint 1: EC2 instance in N. Virginia
+
+Endpoint 2: ALB in Oregon
+
+Weight both endpoints equally or based on region preference.
+
+Health checks: Enabled
+
+The accelerator provides a static IP or DNS, which automatically routes to the healthiest/nearest endpoint.
+
+✅ Part 3: Deliver Content with Amazon CloudFront
+Step 5: Create a CloudFront Distribution
+Go to CloudFront → Create Distribution
+
+Origin domain: Use either:
+
+EC2 Public DNS (N. Virginia)
+
+ALB DNS name (Oregon)
+
+Origin Protocol Policy: HTTP Only
+
+Viewer Protocol Policy: Redirect HTTP to HTTPS
+
+Enable caching, configure TTLs as needed
+
+Web Distribution settings: allow GET and HEAD methods
+
+After creation, note the CloudFront URL (e.g., d123.cloudfront.net)
+
+Test it:
+
+bash
+Copy
+Edit
+curl https://d123.cloudfront.net
+🛡️ Security Considerations
+Use IAM roles and least privilege for EC2 and API Gateway access.
+
+Use WAF with CloudFront for application-layer security (optional but recommended).
+
+Enable HTTPS listeners on ALB with SSL/TLS certificates (from ACM).
+
+Ensure all logs (CloudFront, ALB, API Gateway) are enabled and sent to CloudWatch/S3 for analysis.
+
+
+Global Accelerator routes traffic to nearest healthy endpoint (EC2 or ALB).
+
+CloudFront caches and speeds up content delivery.
+
+API Gateway proxies to the backend via HTTP for RESTful services.
